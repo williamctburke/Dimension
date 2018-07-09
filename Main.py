@@ -8,15 +8,13 @@ Created on Sun Jul  8 17:12:16 2018
 import numpy as np
 import matplotlib.pyplot as plt
 from dimension import Dimension
-from assembly import Assembly
+from stackup import Stackup
 
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------           
 # BASIC PROGRAM FLOW FOR ANY TOLSTACK SIMULATION
     # create all dimension objects by invoking instances of Dimension class
-    
-    # sample all dimsion objects with dimsample()
-    
+        
     # build all stacks you want to analyze
         # stack1 = stackup(dim1,dim2,...)
         
@@ -32,7 +30,7 @@ a = Dimension("housing", 1.5, .1)
 b = Dimension("gasket", 1, .01, 4)
 c = Dimension("bulkhead", 2, .045, 2)
 
-assy = Assembly("assem1", (a,b,c))
+assy = Stackup("assem1", (a,b,c))
 
 # sample all dimensions
 assy.set_samples()
@@ -46,7 +44,7 @@ fig,ax = plt.subplots()
 ax.hist(a.get_sample(), alpha=0.5, bins=100)
 ax.hist(b.get_sample(), alpha=0.5, bins=100)
 ax.hist(c.get_sample(), alpha=0.5, bins=100)
-ax.hist(assy.get_assy_sample(), alpha=0.5, bins=bi)
+ax.hist(assy.get_stackup_sample(), alpha=0.5, bins=bi)
 ax.hist(under,alpha=0.5, color='r', bins=bi)
 ax.hist(over, alpha=0.5, color = 'r', bins = bi)
 plt.show()
