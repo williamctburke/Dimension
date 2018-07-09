@@ -31,9 +31,8 @@ class Dimension:
         instead of a new np.random.normal call. Calling setshifted should call 
         setsample first.
         """
-        shiftdim = self.dim + (self.stddev*shift)
-        shifted = np.random.normal(shiftdim, self.stddev, n)
-        self.shifted = list(shifted)
+        self.setsample(n=num)
+        self.shifted = [e + shift*self.sigma for e in self.s]     
     def getshifted(self):
         return self.shifted
 
