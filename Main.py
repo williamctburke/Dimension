@@ -7,34 +7,8 @@ Created on Sun Jul  8 17:12:16 2018
 
 import numpy as np
 import matplotlib.pyplot as plt
+from Classes import Dim
 
-class Dimension:
-    num = 100000  # Class variable, controls # of samples in monte carlo
-    def __init__(self, name, dim, tol, sigma=3):
-        # basic attributes
-        self.name = name
-        self.dim = dim
-        self.tol = tol
-        self.sigma = sigma
-        self.stddev = self.tol / self.sigma
-    def __str__(self):
-        return str("Dimension Object Named: " + self.name)
-    def setsample(self,n=num):
-        s = np.random.normal(self.dim, self.stddev,n)
-        self.s = list(s)
-    def getsample(self):
-        return self.s
-    def setshifted(self, shift=1.5, n=num):
-        """
-        TODO:
-            this should be changed to be an actual mean shift compared to setsample
-        instead of a new np.random.normal call. Calling setshifted should call 
-        setsample first.
-        """
-        self.setsample(n=num)
-        self.shifted = [e + shift*self.sigma for e in self.s]     
-    def getshifted(self):
-        return self.shifted
 
 def dimsample(*dimensions):
     """
@@ -42,8 +16,8 @@ def dimsample(*dimensions):
     output: sets sample and shifted for each Dim object
     """
     for d in dimensions:
-        d.setsample()
-        d.setshifted()
+        d.set_sample()
+        d.set_shifted()
         
 def stackup(*dimensions):
     """
@@ -74,7 +48,7 @@ def assemble(stack):
     """
     metasample = []
     for dim in stack:
-        metasample.append(dim.getsample())
+        metasample.append(dim.get_sample())
     assembly = [sum(x) for x in zip(*metasample)] #super cool! zip an arbitrary length of lists!
     return assembly
 
@@ -117,9 +91,9 @@ def assemblycheck(assembly,lower,upper):
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
        
-a = Dimension("housing", 1.5, .1)
-b = Dimension("gasket", 1, .01, 4)
-c = Dimension("bulkhead", 2, .045, 2)
+a = Dim("housing", 1.5, .1)
+b = Dim("gasket", 1, .01, 4)
+c = Dim("bulkhead", 2, .045, 2)
 
 # sample all dimensions
 dimsample(a,b,c)
@@ -133,9 +107,10 @@ correct,under,over = assemblycheck(assembly, 4.45, 4.6)
 
 bi = np.linspace(4,5,100) # standardize binspace for assembly vals only
 fig,ax = plt.subplots()
-ax.hist(a.getsample(), alpha=0.5, bins=100)
-ax.hist(b.getsample(), alpha=0.5, bins=100)
-ax.hist(c.getsample(), alpha=0.5, bins=100)
+ax.hist(a.get_sample(), alpha=0.5, bins=100)
+ax.hist(b.get_sample(), alpha=0.5, bins=100)
+ax.hist(c.get_sample(), alpha=0.5, bins=100)
 ax.hist(assembly, alpha=0.5, bins=bi)
 ax.hist(under,alpha=0.5, color='r', bins=bi)
 ax.hist(over, alpha=0.5, color = 'r', bins = bi)
+plt.show()
