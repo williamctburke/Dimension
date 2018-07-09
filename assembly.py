@@ -10,11 +10,13 @@ class Assembly:
         samples = []
         for dim in self.stackup:
             dim.set_sample(n=n)
+    def get_assy_sample(self):
+        samples = []
+        for dim in self.stackup:
             samples.append(dim.get_sample())
-        self.samples = [sum(x) for x in zip(*samples)]
-        self.samples = tuple(self.samples)
-    def get_sample(self):
-        return self.samples
+        samples = [sum(x) for x in zip(*samples)]
+        samples = tuple(samples)
+        return samples
     def get_nominal(self):
         nom = 0
         for dim in self.stackup:
@@ -24,14 +26,14 @@ class Assembly:
         over = []
         under = []
         correct = []
-        for i in self.get_sample():
+        for i in self.get_assy_sample():
             if i < lower:
                 under.append(i)
             elif i > upper:
                 over.append(i)
             else:
                 correct.append(i)
-        n = len(self.get_sample())
+        n = len(correct) + len(under) + len(over)
         print("Pass %: ",(len(correct)/n))
         print("Undersized %: ",(len(under)/n))
         print("Oversized %: ",(len(over)/n))
