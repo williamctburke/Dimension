@@ -7,72 +7,9 @@ Created on Sun Jul  8 17:12:16 2018
 
 import numpy as np
 import matplotlib.pyplot as plt
-from Classes import Dim
+from dimension import Dimension
+from assembly import Assembly
 
-
-def dimsample(*dimensions):
-    """
-    input: an arbitrary number of Dimension objects
-    output: sets sample and shifted for each Dim object
-    """
-    for d in dimensions:
-        d.set_sample()
-        d.set_shifted()
-        
-def stackup(*dimensions):
-    """
-    input: an arbitrary number of Dimension objects
-    out: returns a list of Dimension objects associated with 
-    a physical tolerance stack
-    """
-    stack = []
-    for d in dimensions:
-        stack.append(d)
-    return stack
-
-def nominal(stack):
-    """
-    input: a list of Dimension objects, eg: a stack
-    out: the nominal or target as designed value for the stack
-    """
-    nom = 0
-    for dim in stack:
-        nom += dim.dim
-    return nom
-
-def assemble(stack):
-    """
-    input: a list of Dimension objects, eg: a stack
-    out: a list of as assembled dimensions, with one dimensions
-    for each simulated assembly of the stack
-    """
-    metasample = []
-    for dim in stack:
-        metasample.append(dim.get_sample())
-    assembly = [sum(x) for x in zip(*metasample)] #super cool! zip an arbitrary length of lists!
-    return assembly
-
-def assemblycheck(assembly,lower,upper):
-    """
-    input: an "assembly", or <list> of as assembled dimensions from each 
-    Dimension of a sampled stack
-    out: % pass rate, % oversized, % undersized <floats>
-    """
-    n = len(assembly)
-    over = []
-    under = []
-    correct = []
-    for i in assembly:
-        if i < lower:
-            under.append(i)
-        elif i > upper:
-            over.append(i)
-        else:
-            correct.append(i)
-    print("Pass %: ",(len(correct)/n))
-    print("Undersized %: ",(len(under)/n))
-    print("Oversized %: ",(len(over)/n))
-    return (correct, under, over)
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------           
 # BASIC PROGRAM FLOW FOR ANY TOLSTACK SIMULATION
@@ -91,26 +28,25 @@ def assemblycheck(assembly,lower,upper):
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
        
-a = Dim("housing", 1.5, .1)
-b = Dim("gasket", 1, .01, 4)
-c = Dim("bulkhead", 2, .045, 2)
+a = Dimension("housing", 1.5, .1)
+b = Dimension("gasket", 1, .01, 4)
+c = Dimension("bulkhead", 2, .045, 2)
+
+assy = Assembly("assem1", (a,b,c))
 
 # sample all dimensions
-dimsample(a,b,c)
+assy.set_samples()
 
 # build stack
-stack = stackup(a,b,c)
-assembly = assemble(stack)
-nom = nominal(stack)
-print("target value of stackup is: ", nom)
-correct,under,over = assemblycheck(assembly, 4.45, 4.6)
+print("target value of stackup is: ", assy.get_nominal())
+correct,under,over = assy.check(4.45, 4.6)
 
 bi = np.linspace(4,5,100) # standardize binspace for assembly vals only
 fig,ax = plt.subplots()
 ax.hist(a.get_sample(), alpha=0.5, bins=100)
 ax.hist(b.get_sample(), alpha=0.5, bins=100)
 ax.hist(c.get_sample(), alpha=0.5, bins=100)
-ax.hist(assembly, alpha=0.5, bins=bi)
+ax.hist(assy.get_sample(), alpha=0.5, bins=bi)
 ax.hist(under,alpha=0.5, color='r', bins=bi)
 ax.hist(over, alpha=0.5, color = 'r', bins = bi)
 plt.show()
