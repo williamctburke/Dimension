@@ -4,7 +4,7 @@ Created on Sun Jul  8 17:12:16 2018
 
 @author: Will Burke
 """
-
+import xlwings as xw
 import numpy as np
 import matplotlib.pyplot as plt
 from dimension import Dimension
@@ -28,39 +28,62 @@ from part import Part
         # results = stack1.test(lower, upper)
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
-       
-a = Dimension("housing", 1.5, .1)
-b = Dimension("gasket", 1, .01, 4)
-c = Dimension("bulkhead", 2, .045, 2)
-d = Dimension("pin", 0.5, 0.005, 4)
+class Main:
+    sample_count = 100000
+    def __init__(self):
+        #sht = xw.Book.caller().sheets[0]
+        self.sht = xw.Book('Dimension.xlsm').sheets[0]
+        self.sht2 = xw.Book('Dimension.xlsm').sheets[1]
+        self.dim_range = self.sht.range('A3:F3').options(ndim=2, expand='down')
+        self.stack_range = self.sht.range('G3:J3').options(ndim=2, expand='down')
+        self.part_range = self.sht.range('O3:P3').options(ndim=2, expand='down')
+    def simulate(self):
+        for dim in self.dimensions:
+            dim.set_sample(int(self.sht.range('S1').value))
+        self.update()
+    def read(self):
+        self.dimensions = []
+        for row in self.dim_range.value:
+            self.dimensions.append(Dimension(row[0], row[1], row[2], row[3], row[4], row[5]))
+        self.stackups = []
+        for i in range(0, len(self.stack_range.value)):
+            row = self.stack_range.value[i]
+            dims = []
+            for index in row[1].split(','):
+                dims.append(self.dimensions[int(index)-3])
+            self.stackups.append(Stackup(row[0], dims, row[2], row[3]))
+            self.sht.range('K'+str(i+3)).value = self.stackups[i].get_nominal()
+        self.parts = []
+        for row in self.part_range.value:
+            stacks = []
+            for index in row[1].split(','):
+                stacks.append(self.stackups[int(index)-3])
+            self.parts.append(Part(row[0], stacks))
+    def update(self):
+        for i in range(0, len(self.stackups)):
+            row = str(i+3)
+            _,correct,under,over = self.stackups[i].test()
+            n = len(correct) + len(under) + len(over)
+            self.sht.range('L'+row).value = (len(correct)/n)
+            self.sht.range('M'+row).value = (len(under)/n)
+            self.sht.range('N'+row).value = (len(over)/n)
 
-stack = Stackup("stack1", (a,b,c), 4.45, 4.6)
-stack2 = Stackup("stack2", (a,d), 1.9, 2.1)
+        for i in range(0, len(self.parts)):
+            row = str(i+3)
+            results = self.parts[0].test()
+            self.sht.range('Q'+row).value = (sum(results)/len(results))
+            
+        bi = np.linspace(4,5,100) # standardize binspace for assembly vals only
+        fig,ax = plt.subplots()
+        for dim in self.dimensions:
+            ax.hist(dim.get_sample(), alpha=0.5, bins=100)
+        ax.hist(self.stackups[0].get_stackup_sample(), alpha=0.5, bins=bi)
+        ax.hist(under,alpha=0.5, color='r', bins=bi)
+        ax.hist(over, alpha=0.5, color = 'r', bins = bi)
+        self.sht.pictures.add(fig, name="Analysis", update=True)
 
-part = Part("part", (stack, stack2))
-
-# sample all dimensions
-Dimension.set_all_samples()
-
-# build stack
-print("target value of stackup is: ", stack.get_nominal())
-_,correct,under,over = stack.test()
-
-n = len(correct) + len(under) + len(over)
-print("Pass %: ",(len(correct)/n))
-print("Undersized %: ",(len(under)/n))
-print("Oversized %: ",(len(over)/n))
-
-results = part.test()
-print("Part success rate: %: ", (sum(results)/len(results)))
-
-bi = np.linspace(4,5,100) # standardize binspace for assembly vals only
-fig,ax = plt.subplots()
-ax.hist(a.get_sample(), alpha=0.5, bins=100)
-ax.hist(b.get_sample(), alpha=0.5, bins=100)
-ax.hist(c.get_sample(), alpha=0.5, bins=100)
-ax.hist(d.get_sample(), alpha=0.5, bins=100)
-ax.hist(stack.get_stackup_sample(), alpha=0.5, bins=bi)
-ax.hist(under,alpha=0.5, color='r', bins=bi)
-ax.hist(over, alpha=0.5, color = 'r', bins = bi)
-plt.show()
+if __name__ == "__main__":
+    # Used for frozen executable
+    main = Main()
+    main.read()
+    main.simulate()

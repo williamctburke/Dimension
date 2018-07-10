@@ -7,7 +7,7 @@ class Stackup:
         self.max = upper
     def __str__(self):
         return str("Assembly Object Named: " + self.name)
-    def set_samples(self, n = Dimension.SAMPLE_COUNT):
+    def set_samples(self, n):
         samples = []
         for dim in self.stackup:
             dim.set_sample(n=n)
@@ -28,14 +28,15 @@ class Stackup:
         over = []
         under = []
         correct = []
-        results = [False]*len(samples)
+        results = [0]*len(samples)
         for i in range(0, len(samples)):
             sample = samples[i]
             if sample < self.min:
                 under.append(sample)
+                results[i] = 1
             elif sample > self.max:
                 over.append(sample)
+                results[i] = 2
             else:
                 correct.append(sample)
-                results[i] = True
         return (results, correct, under, over)
