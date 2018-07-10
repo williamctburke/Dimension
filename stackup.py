@@ -1,9 +1,10 @@
 from dimension import Dimension
 class Stackup:
-    def __init__(self, name, stackup):
+    def __init__(self, name, stackup, lower, upper):
         self.name = name
         self.stackup = stackup
-        self.samples = ()
+        self.min = lower
+        self.max = upper
     def __str__(self):
         return str("Assembly Object Named: " + self.name)
     def set_samples(self, n = Dimension.SAMPLE_COUNT):
@@ -22,19 +23,19 @@ class Stackup:
         for dim in self.stackup:
             nom += dim.dim
         return nom
-    def check(self, lower, upper):
+    def test(self):
+        samples = self.get_stackup_sample()
         over = []
         under = []
         correct = []
-        for i in self.get_stackup_sample():
-            if i < lower:
-                under.append(i)
-            elif i > upper:
-                over.append(i)
+        results = [False]*len(samples)
+        for i in range(0, len(samples)):
+            sample = samples[i]
+            if sample < self.min:
+                under.append(sample)
+            elif sample > self.max:
+                over.append(sample)
             else:
-                correct.append(i)
-        n = len(correct) + len(under) + len(over)
-        print("Pass %: ",(len(correct)/n))
-        print("Undersized %: ",(len(under)/n))
-        print("Oversized %: ",(len(over)/n))
-        return (correct, under, over)
+                correct.append(sample)
+                results[i] = True
+        return (results, correct, under, over)
