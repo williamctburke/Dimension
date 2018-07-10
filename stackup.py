@@ -28,15 +28,14 @@ class Stackup:
         over = []
         under = []
         correct = []
-        results = [0]*len(samples)
+        results = [False]*len(samples)
         for i in range(0, len(samples)):
             sample = samples[i]
             if sample < self.min:
                 under.append(sample)
-                results[i] = 1
             elif sample > self.max:
                 over.append(sample)
-                results[i] = 2
             else:
                 correct.append(sample)
+                results[i] = True
         return (results, correct, under, over)
