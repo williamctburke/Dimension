@@ -22,16 +22,20 @@ class Main:
         self.sht.range('N3:Q4').expand('down').clear_contents()
         self.sht.range('T3').expand('down').clear_contents()
         # Initialize error message range
-        self.error_rng = self.sht.range('A15')
+        self.error_rng = self.sht.range('A1')
         self.error_rng.value = "Running..."
+        # Initialize sample parameter range
+        Main.sample_count = int(self.sht.range('B5').value)
+        if Main.sample_count == 0:
+            self.error_rng.value = "Sample count cannot be zero. Check cell B5"
+            quit()
         
     def simulate(self):
         self.read()
-        Main.sample_count = int(self.sht.range('B3').value)
         for dim in self.dimensions:
             dim.set_sample(Main.sample_count)
         self.update()
-        self.error_rng.value = "Done"
+        self.error_rng.value = "Ready"
         
     def read(self):
         # Generate dimension, stackup, and product objects from user input
@@ -71,7 +75,8 @@ class Main:
             row = str(i+3)
             results = self.products[0].test()
             self.sht.range('T'+row).value = (sum(results)/len(results))
-        if self.sht.api.Shapes("check0").OLEFormat.Object.Value == 1:
+        # Read from check box
+        if self.sht.api.Shapes("check0").OLEFormat.Object.Value > 0:
             self.write_dims()
             
     def write_dims(self):

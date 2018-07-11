@@ -21,11 +21,8 @@ class Dimension:
         return str("Dimension Object Named: " + self.name)
     def set_sample(self,n):
         Dimension.sample_count = n
-        sampler_dict = {
-            "normal":np.random.normal
-            }
-        sampler = sampler_dict.get(self.dist)
-        s = sampler(self.dim, self.stddev, n)
+        if self.dist == "normal":
+            s = np.random.normal(self.dim, self.stddev, n)
         self.s = tuple(s)
         self.shifted = [e + self.shift*self.sigma for e in self.s]
     def set_shift(self, shift=1.5):
