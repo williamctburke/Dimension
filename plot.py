@@ -21,7 +21,8 @@ class Plot:
         else:
             self.bin_size = int(self.bin_size)
         self.plot_dims = self.sht.range('B11')
-        self.plot_stacks = self.sht.range('B16')
+        self.plot_stack_cell = 'B16'
+        self.plot_stacks = self.sht.range(self.plot_stack_cell)
         # Initialize error message range
         self.error_rng = self.sht.range('A1')
         self.error_rng.value = "Running..."
@@ -48,11 +49,10 @@ class Plot:
         self.stack_plot_data=[]
         self.stack_plot_mask=[] # Data used to mark undersized and oversized samples
         if len(self.dim_indexes) > 0 and self.stack_indexes[0] != "None":
-            print(self.stack_indexes)
             for index in self.stack_indexes:
                 i = round(float(index))
                 if i > len(self.stack_range.value) or self.stack_range.value[i][1] == None:
-                    self.error_rng.value = "Invalid stackup index %d in cell B11" % (i)
+                    self.error_rng.value = "Invalid reference to stackup %d in cell %s" % (i, self.plot_stack_cell)
                     quit()
                 dim_inds = self.stack_range.value[i][1].split(',')
                 lower = self.stack_range.value[i][2]
@@ -72,7 +72,7 @@ class Plot:
     def draw(self):
         self.read()
         plotted = False
-        if self.dim_indexes != None:
+        if self.dim_indexes != None and len(self.dim_indexes) > 0 and self.dim_indexes[0] != 'None':
             plotted = True
             # Plot dimensions in one figure
             if self.sht.api.Shapes("buttond0").OLEFormat.Object.Value > 0:
@@ -81,6 +81,7 @@ class Plot:
                     plt.gca().hist(self.dim_plot_data[i], alpha=0.5, bins=self.bin_size,
                                    label=self.dim_plot_names[i])
                 plt.legend()
+                plt.tight_layout()
             # Plot dimensions in one figure, multiple plots
             elif self.sht.api.Shapes("buttond1").OLEFormat.Object.Value > 0:
                 f, axs = plt.subplots(len(self.dim_plot_data), 1, sharex=True)
@@ -88,14 +89,16 @@ class Plot:
                     axs[i].hist(self.dim_plot_data[i], alpha=0.5, bins=self.bin_size,
                                 label=self.dim_plot_names[i], facecolor='b')
                     axs[i].legend()
+                plt.tight_layout()
             # Plot dimensions in multiple figures
             else:
                 for i in range(0, len(self.dim_plot_data)):
                     f = plt.figure(i)
                     plt.title(self.dim_plot_names[i])
-                    plt.gca().hist(self.dim_plot_data[i], alpha=0.5, bins=self.bin_size, facecolor='b')
-                    
-        if self.stack_indexes != None:
+                    plt.gca().hist(self.dim_plot_data[i], alpha=0.5, bins=self.bin_size, facecolor='b', density=True)
+                    plt.tight_layout()
+        if self.stack_indexes != None and len(self.stack_indexes) > 0 and self.stack_indexes[0] != 'None':
+            print(self.stack_indexes)
             plotted = True
             # Plot stackups in one figure
             if self.sht.api.Shapes("buttons0").OLEFormat.Object.Value > 0:
@@ -105,6 +108,7 @@ class Plot:
                                    label=self.stack_plot_names[i])
                     plt.gca().hist(self.stack_plot_mask[i], alpha=1, bins=self.bin_size, facecolor='r')
                 plt.legend()
+                plt.tight_layout()
             # Plot stackups in one figure, multiple plots
             elif self.sht.api.Shapes("buttons1").OLEFormat.Object.Value > 0:
                 f, axs = plt.subplots(len(self.stack_plot_data), 1, sharex=True)
@@ -113,6 +117,7 @@ class Plot:
                                 label=self.stack_plot_names[i], facecolor='g')
                     axs[i].hist(self.stack_plot_mask[i], alpha=1, bins=self.bin_size, facecolor='r')
                     axs[i].legend()
+                plt.tight_layout()
             # Plot stackups in multiple figures
             else:
                 for i in range(0, len(self.stack_plot_data)):
@@ -120,6 +125,7 @@ class Plot:
                     plt.title(self.stack_plot_names[i])
                     plt.gca().hist(self.stack_plot_data[i], alpha=0.5, bins=self.bin_size, facecolor='g')
                     plt.gca().hist(self.stack_plot_mask[i], alpha=1, bins=self.bin_size, facecolor='r')
+                    plt.tight_layout()
         if plotted == True:
             self.error_rng.value = "Waiting for figures to close..."
             plt.show()

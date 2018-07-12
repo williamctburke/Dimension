@@ -21,6 +21,16 @@ class Main:
         self.product_range = self.sht.range('R3:T3').options(ndim=2, expand='down')
         self.sht.range('N3:Q4').expand('down').clear_contents()
         self.sht.range('T3').expand('down').clear_contents()
+        # Initialize output range
+        self.dim_start_col = 'D'
+        self.stack_start_col = 'J'
+        self.prod_start_col = 'R'
+        self.stack_nominal_col = 'N'
+        self.stack_pass_col = 'O'
+        self.stack_under_col = 'P'
+        self.stack_over_col = 'Q'
+        self.prod_pass_col = 'T'
+        self.sample_output_cell = 'A1'
         # Initialize error message range
         self.error_rng = self.sht.range('A1')
         self.error_rng.value = "Running..."
@@ -52,7 +62,7 @@ class Main:
             for index in str(row[1]).split(','):
                 dims.append(self.dimensions[round(float(index))])
             self.stackups.append(Stackup(row[0], dims, row[2], row[3]))
-            self.sht.range('N'+str(i+3)).value = self.stackups[i].get_nominal()
+            self.sht.range(self.stack_nominal_col+str(i+3)).value = self.stackups[i].get_nominal()
         self.products = []
         for i in range(0, len(self.product_range.value)):
             self.check_prod(i)
@@ -68,20 +78,20 @@ class Main:
             row = str(i+3)
             _,correct,under,over = self.stackups[i].test()
             n = len(correct) + len(under) + len(over)
-            self.sht.range('O'+row).value = (len(correct)/n)
-            self.sht.range('P'+row).value = (len(under)/n)
-            self.sht.range('Q'+row).value = (len(over)/n)   
+            self.sht.range(self.stack_pass_col+row).value = (len(correct)/n)
+            self.sht.range(self.stack_under_col+row).value = (len(under)/n)
+            self.sht.range(self.stack_over_col+row).value = (len(over)/n)   
         for i in range(0, len(self.products)):
             row = str(i+3)
             results = self.products[0].test()
-            self.sht.range('T'+row).value = (sum(results)/len(results))
+            self.sht.range(self.prod_pass_col+row).value = (sum(results)/len(results))
         # Read from check box
         if self.sht.api.Shapes("check0").OLEFormat.Object.Value > 0:
             self.write_dims()
             
     def write_dims(self):
         index = 1
-        self.sht2.range('A1').expand().clear()
+        self.sht2.range(self.sample_output_cell).expand().clear()
         for dim in self.dimensions:
             self.sht2.range((1,index)).value = dim.name
             self.sht2.range((2,index)).options(transpose=True).value = dim.get_sample()
@@ -91,31 +101,31 @@ class Main:
         dim = self.dim_range.value[dim_ind]
         for i in range(0,3):
             if dim[i] == None:
-                self.error_rng.value = "Missing required field in dimension %d, cell %s%d" % (dim_ind, chr(ord('D')+i), dim_ind+3)
+                self.error_rng.value = "Missing required field in dimension %d, cell %s%d" % (dim_ind, chr(ord(self.dim_start_col)+i), dim_ind+3)
                 quit()
                 
     def check_stack(self, stack_ind):
         stack = self.stack_range.value[stack_ind]
         for i in range(0,4):
             if stack[i] == None:
-                self.error_rng.value = "Missing required field in stackup %d, cell %s%d" % (stack_ind, chr(ord('J')+i), stack_ind+3)
+                self.error_rng.value = "Missing required field in stackup %d, cell %s%d" % (stack_ind, chr(ord(self.stack_start_col)+i), stack_ind+3)
                 quit()
         for ind in str(stack[1]).split(','):
             i = round(float(ind))
             if i > len(self.dim_range.value)-1 or self.dim_range.value[i] == None:
-                self.error_rng.value = "Invalid reference to dimension %d in cell K%d" % (i, stack_ind+3)
+                self.error_rng.value = "Invalid reference to dimension %d in cell %s%d" % (i, chr(ord(self.stack_start_col)+1), stack_ind+3)
                 quit()
                 
     def check_prod(self, prod_ind):
         prod = self.product_range.value[prod_ind]
         for i in range(0,2):
             if prod[i] == None:
-                self.error_rng.value = "Missing required field in product %d, cell %s%d" % (prod_ind, chr(ord('R')+i), prod_ind+3)
+                self.error_rng.value = "Missing required field in product %d, cell %s%d" % (prod_ind, chr(ord(self.prod_start_col)+i), prod_ind+3)
                 quit()
         for ind in str(prod[1]).split(','):
             i = round(float(ind))
             if i > len(self.stack_range.value)-1 or self.stack_range.value[i] == None:
-                self.error_rng.value = "Invalid reference to stackup %d in cell S%d" % (i, prod_ind+3)
+                self.error_rng.value = "Invalid reference to stackup %d in cell %s%d" % (i,chr(ord(self.prod_start_col)+1), prod_ind+3)
                 quit()
                 
 if __name__ == "__main__":
