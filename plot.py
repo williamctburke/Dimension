@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import xlwings as xw
+import numpy as np
 import matplotlib.pyplot as plt
 
 class Plot:
@@ -97,6 +98,7 @@ class Plot:
                     plt.gca().hist(self.dim_plot_data[i], alpha=0.5, bins=self.bin_size, facecolor='b', density=True)
                     plt.tight_layout()
         if self.stack_indexes != None and len(self.stack_indexes) > 0 and self.stack_indexes[0] != 'None':
+            print(self.stack_indexes)
             plotted = True
             # Plot stackups in one figure
             if self.sht.api.Shapes("buttons0").OLEFormat.Object.Value > 0:
