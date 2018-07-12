@@ -83,7 +83,7 @@ class Plot:
                 plt.legend()
             # Plot dimensions in one figure, multiple plots
             elif self.sht.api.Shapes("buttond1").OLEFormat.Object.Value > 0:
-                f, axs = plt.subplots(len(self.dim_plot_data), 1, sharey=True)
+                f, axs = plt.subplots(len(self.dim_plot_data), 1, sharex=True)
                 for i in range(0, len(self.dim_plot_data), 1):
                     axs[i].hist(self.dim_plot_data[i], alpha=0.5, bins=self.bin_size,
                                 label=self.dim_plot_names[i], facecolor='b')
@@ -94,6 +94,7 @@ class Plot:
                     f = plt.figure(i)
                     plt.title(self.dim_plot_names[i])
                     plt.gca().hist(self.dim_plot_data[i], alpha=0.5, bins=self.bin_size, facecolor='b')
+                    
         if self.stack_indexes != None:
             plotted = True
             # Plot stackups in one figure
@@ -106,7 +107,7 @@ class Plot:
                 plt.legend()
             # Plot stackups in one figure, multiple plots
             elif self.sht.api.Shapes("buttons1").OLEFormat.Object.Value > 0:
-                f, axs = plt.subplots(len(self.stack_plot_data), 1)
+                f, axs = plt.subplots(len(self.stack_plot_data), 1, sharex=True)
                 for i in range(0, len(self.stack_plot_data), 1):
                     axs[i].hist(self.stack_plot_data[i], alpha=0.5, bins=self.bin_size,
                                 label=self.stack_plot_names[i], facecolor='g')
