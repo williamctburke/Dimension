@@ -19,10 +19,13 @@ executables = [Executable("main.py", base=base),
 packages = ["idna"]
 additonal_mods = ['numpy.core._methods',
                   'matplotlib.backends.backend_tkagg']
+#exclude_mods = []
 options = {
     'build_exe': {
         'packages':packages,
-        'includes': additonal_mods
+        'includes': additonal_mods,
+#        "excludes": exclude_mods,
+        'build_exe':'..\\build\\'
     },
 }
 
@@ -30,6 +33,6 @@ setup(
     name = "main",
     options = options,
     version = "0.1.0.0",
-    description = 'YOUR_PROGRAM_DESCRIPTION',
+    description = 'Tolerance stackup analysis build to integrate with Excel',
     executables = executables
 )

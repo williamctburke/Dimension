@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import xlwings as xw
-import numpy as np
 import matplotlib.pyplot as plt
 
 class Plot:
@@ -28,7 +27,6 @@ class Plot:
         self.error_rng.value = "Running..."
 
     def read(self):
-
         # Get desired dimension samples
         self.dim_indexes = str(self.plot_dims.value).split(',')
         self.stack_indexes = str(self.plot_stacks.value).split(',')
@@ -98,7 +96,6 @@ class Plot:
                     plt.gca().hist(self.dim_plot_data[i], alpha=0.5, bins=self.bin_size, facecolor='b', density=True)
                     plt.tight_layout()
         if self.stack_indexes != None and len(self.stack_indexes) > 0 and self.stack_indexes[0] != 'None':
-            print(self.stack_indexes)
             plotted = True
             # Plot stackups in one figure
             if self.sht.api.Shapes("buttons0").OLEFormat.Object.Value > 0:
@@ -121,7 +118,7 @@ class Plot:
             # Plot stackups in multiple figures
             else:
                 for i in range(0, len(self.stack_plot_data)):
-                    f = plt.figure(i+len(self.dim_plot_data))
+                    plt.figure(i+len(self.dim_plot_data))
                     plt.title(self.stack_plot_names[i])
                     plt.gca().hist(self.stack_plot_data[i], alpha=0.5, bins=self.bin_size, facecolor='g')
                     plt.gca().hist(self.stack_plot_mask[i], alpha=1, bins=self.bin_size, facecolor='r')
@@ -133,7 +130,7 @@ class Plot:
                 
 if __name__ == "__main__":
     # Used when running from Python
-    xw.Book('Dimension.xlsm').set_mock_caller()
+    xw.Book('Dimension_standalone.xlsm').set_mock_caller()
     # Used for frozen executable
     plot = Plot()
     plot.draw()

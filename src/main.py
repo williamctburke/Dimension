@@ -130,7 +130,7 @@ class Main:
                 
 if __name__ == "__main__":
     # Used when running from Python
-    xw.Book('Dimension.xlsm').set_mock_caller()
+    xw.Book('Dimension_standalone.xlsm').set_mock_caller()
     # Used for frozen executable
     main = Main()
     main.simulate()
