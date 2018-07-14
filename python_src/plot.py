@@ -29,8 +29,6 @@ class Plot:
     def read(self):
         # Get desired dimension samples
         self.dim_indexes = str(self.plot_dims.value).split(',')
-        self.stack_indexes = str(self.plot_stacks.value).split(',')
-
         self.dim_plot_names=[]
         self.dim_plot_data = []
         if len(self.dim_indexes) > 0 and self.dim_indexes[0] != "None":
@@ -43,6 +41,7 @@ class Plot:
                     quit()
 
         # Generate desired stack samples by summing dimension samples
+        self.stack_indexes = str(self.plot_stacks.value).split(',')
         self.stack_plot_names=[]
         self.stack_plot_data=[]
         self.stack_plot_mask=[] # Data used to mark undersized and oversized samples
@@ -52,12 +51,14 @@ class Plot:
                 if i > len(self.stack_range.value) or self.stack_range.value[i][1] == None:
                     self.error_rng.value = "Invalid reference to stackup %d in cell %s" % (i, self.plot_stack_cell)
                     quit()
-                dim_inds = self.stack_range.value[i][1].split(',')
+                dim_inds = str(self.stack_range.value[i][1]).split(',')
+                if self.stack_range.value[i][1] == None:
+                    self.error_rng.value = "Stack %d has no references to dimensions in cell %s%d" % (i,'K',i+3)
                 lower = self.stack_range.value[i][2]
                 upper = self.stack_range.value[i][3]
                 dim_samples = []
                 for ind in dim_inds:
-                    j = round(float(ind) + 1)
+                    j = round(float(ind) + 1) # Add one since Excel columns start at 1
                     if self.sht2.range((1,j)).value == None:
                         self.error_rng.value = "Missing sample for dimension %d" % (i-1)
                         quit()
@@ -70,7 +71,7 @@ class Plot:
     def draw(self):
         self.read()
         plotted = False
-        if self.dim_indexes != None and len(self.dim_indexes) > 0 and self.dim_indexes[0] != 'None':
+        if len(self.dim_indexes) > 0 and self.dim_indexes[0] != 'None':
             plotted = True
             # Plot dimensions in one figure
             if self.sht.api.Shapes("buttond0").OLEFormat.Object.Value > 0:
@@ -87,7 +88,7 @@ class Plot:
                     axs[i].hist(self.dim_plot_data[i], alpha=0.5, bins=self.bin_size,
                                 label=self.dim_plot_names[i], facecolor='b')
                     axs[i].legend()
-                plt.tight_layout()
+                plt.tight_layout() # Makes sure subplot axes do not overlap
             # Plot dimensions in multiple figures
             else:
                 for i in range(0, len(self.dim_plot_data)):
@@ -95,7 +96,7 @@ class Plot:
                     plt.title(self.dim_plot_names[i])
                     plt.gca().hist(self.dim_plot_data[i], alpha=0.5, bins=self.bin_size, facecolor='b', density=True)
                     plt.tight_layout()
-        if self.stack_indexes != None and len(self.stack_indexes) > 0 and self.stack_indexes[0] != 'None':
+        if len(self.stack_indexes) > 0 and self.stack_indexes[0] != 'None':
             plotted = True
             # Plot stackups in one figure
             if self.sht.api.Shapes("buttons0").OLEFormat.Object.Value > 0:
