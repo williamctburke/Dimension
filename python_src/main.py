@@ -82,7 +82,7 @@ class Main:
             else:
                 params = self.sht3.range((2,i+2)).value
                 if params == None:
-                    self.error_rng.value = "Missing parameters for dimension %d, fit data first" % (dim_ind, chr(ord(self.dim_start_col)+i), dim_ind+3)
+                    self.error_rng.value = "Missing parameters for dimension %d, fit data first" % (i)
                     sys.exit()
                 else:
                     params = params.split(',')
