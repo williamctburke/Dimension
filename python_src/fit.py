@@ -2,6 +2,7 @@ import xlwings as xw
 import warnings
 import scipy.stats as st
 import numpy as np
+import sys
 # Distributions to check
 DISTRIBUTIONS = [        
     st.alpha,st.anglit,st.arcsine,st.beta,st.betaprime,st.bradford,st.burr,st.cauchy,st.chi,st.chi2,st.cosine,
@@ -27,7 +28,7 @@ def fit_all():
         data = sht3.range((5,ind+2)).expand('down').value
         if data == None or None in data or len(data) < 2:
             error_rng.value = "Missing data for dimension %d, check 'Dimension Data' sheet column %s" % (ind, chr(ord('B')+ind))
-            quit()
+            sys.exit()
         else:
             results = fit(data)
             string = ""
@@ -83,6 +84,6 @@ def fit(rng):
 
 if __name__ == "__main__":
     # Used when running from Python
-    xw.Book('Dimension.xlsm').set_mock_caller()
+    xw.Book('Dimension_standalone.xlsm').set_mock_caller()
     # Used for frozen executable
     fit_all()

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import xlwings as xw
 import matplotlib.pyplot as plt
+import sys
 
 class Plot:
     def __init__(self):
@@ -16,7 +17,7 @@ class Plot:
         self.bin_size = self.plot_bins.value
         if not isinstance(self.bin_size, float) or self.bin_size == 0:
             self.error_rng.value = "Bin size cannot be zero. Check cell B9"
-            quit()
+            sys.exit()
         else:
             self.bin_size = int(self.bin_size)
         self.plot_dims = self.sht.range('B11')
@@ -38,7 +39,7 @@ class Plot:
                 self.dim_plot_names.append(self.sht2.range((1,i)).value)
                 if self.dim_plot_names[-1] == None:
                     self.error_rng.value = "Missing sample for dimension %d" % (i-1)
-                    quit()
+                    sys.exit()
 
         # Generate desired stack samples by summing dimension samples
         self.stack_indexes = str(self.plot_stacks.value).split(',')
@@ -50,7 +51,7 @@ class Plot:
                 i = round(float(index))
                 if i > len(self.stack_range.value) or self.stack_range.value[i][1] == None:
                     self.error_rng.value = "Invalid reference to stackup %d in cell %s" % (i, self.plot_stack_cell)
-                    quit()
+                    sys.exit()
                 dim_inds = str(self.stack_range.value[i][1]).split(',')
                 if self.stack_range.value[i][1] == None:
                     self.error_rng.value = "Stack %d has no references to dimensions in cell %s%d" % (i,'K',i+3)
@@ -61,7 +62,7 @@ class Plot:
                     j = round(float(ind) + 1) # Add one since Excel columns start at 1
                     if self.sht2.range((1,j)).value == None:
                         self.error_rng.value = "Missing sample for dimension %d" % (i-1)
-                        quit()
+                        sys.exit()
                     dim_samples.append(self.sht2.range((2,j)).expand('down').value)
                 data = [sum(x) for x in zip(*dim_samples)]
                 self.stack_plot_data.append(data)

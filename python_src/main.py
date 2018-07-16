@@ -8,6 +8,7 @@ import xlwings as xw
 from dimension import Dimension
 from stackup import Stackup
 from product import Product
+import sys
 
 import scipy.stats as st
 
@@ -55,7 +56,7 @@ class Main:
 
         if Main.sample_count == 0:
             self.error_rng.value = "Sample count cannot be zero. Check cell B5"
-            quit()
+            sys.exit()
         
     def simulate(self):
         self.read() # The settings for each dim are populated in the read() method
@@ -79,11 +80,14 @@ class Main:
                 best_dist = st.norm
                 best_params = (dim.dim, dim.stddev)
             else:
-                params = self.sht3.range((2,i+2)).value.split(',')
+                params = self.sht3.range((2,i+2)).value
+                if params == None:
+                    self.error_rng.value = "Missing parameters for dimension %d, fit data first" % (dim_ind, chr(ord(self.dim_start_col)+i), dim_ind+3)
+                    sys.exit()
+                else:
+                    params = params.split(',')
                 best_params = [float(i) for i in params[1:]]
                 best_dist = DISTRIBUTIONS[int(round(float(params[0])))]
-                print(best_params)
-                print(best_dist.name)
             self.dimensions[-1].set_dist(best_dist, best_params)
         self.stackups = []
         for i in range(0, len(self.stack_range.value)):
@@ -136,31 +140,31 @@ class Main:
         for i in range(0,3):
             if dim[i] == None:
                 self.error_rng.value = "Missing required field in dimension %d, cell %s%d" % (dim_ind, chr(ord(self.dim_start_col)+i), dim_ind+3)
-                quit()
+                sys.exit()
                 
     def check_stack(self, stack_ind):
         stack = self.stack_range.value[stack_ind]
         for i in range(0,4):
             if stack[i] == None:
                 self.error_rng.value = "Missing required field in stackup %d, cell %s%d" % (stack_ind, chr(ord(self.stack_start_col)+i), stack_ind+3)
-                quit()
+                sys.exit()
         for ind in str(stack[1]).split(','):
             i = round(float(ind))
             if i > len(self.dim_range.value)-1 or self.dim_range.value[i] == None:
                 self.error_rng.value = "Invalid reference to dimension %d in cell %s%d" % (i, chr(ord(self.stack_start_col)+1), stack_ind+3)
-                quit()
+                sys.exit()
                 
     def check_prod(self, prod_ind):
         prod = self.product_range.value[prod_ind]
         for i in range(0,2):
             if prod[i] == None:
                 self.error_rng.value = "Missing required field in product %d, cell %s%d" % (prod_ind, chr(ord(self.prod_start_col)+i), prod_ind+3)
-                quit()
+                sys.exit()
         for ind in str(prod[1]).split(','):
             i = round(float(ind))
             if i > len(self.stack_range.value)-1 or self.stack_range.value[i] == None:
                 self.error_rng.value = "Invalid reference to stackup %d in cell %s%d" % (i,chr(ord(self.prod_start_col)+1), prod_ind+3)
-                quit()
+                sys.exit()
 
 if __name__ == "__main__":
     # Used to set the Excel file in stand-alone mode

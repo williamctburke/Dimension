@@ -21,6 +21,18 @@ From the `python_src` folder, call the following commands in your command prompt
 The stand-alone output should be in a directory called `build`.
 Ensure `Dimension_standalone.xlsm` is in the same folder as the `build` folder.
 
+If the executable has DLL or import errors when run, there may be missing imports. In the `python_src` folder there should be `.spec` files with the same name as the build executables.
+Add the following path to the `pathex` variable to fix missing Scipy DLLs. The actual path varies depending on where your files are installed.
+```python
+pathex=['\\Dimension\\python_src',
+        '~\\Python36\\Lib\\site-packages\\scipy\\extra-dll']
+```
+For missing imports, add the desired import to the `hidden-imports` variable
+```python
+hiddenimports=['scipy._lib.messagestream']
+```
+After these modifications make sure to call `pyinstaller main.spec` instead of `main.py`, or your changes to the `.spec` file will be overwritten.
+
 ## Python Version ##
 ### Dependencies ###
 Before using the Python version, ensure the following packages are installed and visible to your Python distribution.
