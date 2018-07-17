@@ -38,7 +38,7 @@ class Plot:
                 self.dim_plot_data.append(self.sht2.range((2,i)).expand('down').value)
                 self.dim_plot_names.append(self.sht2.range((1,i)).value)
                 if self.dim_plot_names[-1] == None:
-                    self.error_rng.value = "Missing sample for dimension %d" % (i-1)
+                    self.error_rng.value = "Missing sample for dimension %d, check Dimension Samples sheet" % (i-1)
                     sys.exit()
 
         # Generate desired stack samples by summing dimension samples
@@ -61,7 +61,7 @@ class Plot:
                 for ind in dim_inds:
                     j = round(float(ind) + 1) # Add one since Excel columns start at 1
                     if self.sht2.range((1,j)).value == None:
-                        self.error_rng.value = "Missing sample for dimension %d" % (i-1)
+                        self.error_rng.value = "Missing sample for dimension %d, check Dimension Samples sheet" % (i-1)
                         sys.exit()
                     dim_samples.append(self.sht2.range((2,j)).expand('down').value)
                 data = [sum(x) for x in zip(*dim_samples)]
