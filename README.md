@@ -49,8 +49,8 @@ If you are moving the tool, please ensure `Dimension.xlsm` is in the same folder
 ### Resources ###
 Below are references for various packages used in the code.
 
-*[matplotlib](https://matplotlib.org/users/index.html)
-*[numpy](https://docs.scipy.org/doc/numpy/reference/)
-*[xlwings](http://docs.xlwings.org/en/stable/quickstart.html)
-*[pyinstaller](https://pyinstaller.readthedocs.io/en/v3.3.1/)
-*[scipy.stats](https://docs.scipy.org/doc/scipy/reference/stats.html)
+* [matplotlib](https://matplotlib.org/users/index.html)
+* [numpy](https://docs.scipy.org/doc/numpy/reference/)
+* [xlwings](http://docs.xlwings.org/en/stable/quickstart.html)
+* [pyinstaller](https://pyinstaller.readthedocs.io/en/v3.3.1/)
+* [scipy.stats](https://docs.scipy.org/doc/scipy/reference/stats.html)
