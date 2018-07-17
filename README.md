@@ -1,13 +1,13 @@
 
-## Stand-alone Version ##
-### Installation ###
+### Stand-alone Version ###
+#### Installation ####
 Check inside the `standalone` folder. If there is a `build` folder, then the stand-alone executables were included with this distribution.
 If not, the stand-alone executables need to be built according to the instructions in the next section.
 
 Open `Dimension_standalone.xlsm` to use the tool.
 If you are moving the tool, please ensure `Dimension_standalone.xlsm` is in the same folder as the `build` folder.
 
-### Building the stand-alone ###
+#### Building the stand-alone ####
 A stand-alone build may not be provided with this distribution.
 To build the stand-alone executables, you need Python and all the depdencies listed in the dependencies section.
 
@@ -33,18 +33,18 @@ hiddenimports=['scipy._lib.messagestream']
 ```
 After these modifications make sure to call `pyinstaller main.spec` instead of `main.py`, or your changes to the `.spec` file will be overwritten.
 
-## Python Version ##
-### Dependencies ###
-Before using the Python version, ensure the following packages are installed and visible to your Python distribution. The Anaconda distribution is an easy way to set this up.
+### Python Version ###
+#### Dependencies ####
+Before using the Python version, ensure the following packages are installed and visible to your Python distribution. The Anaconda distribution is an easy way to set this up. Make sure the packages are up to date.
 * `numpy`
 * `scipy`
 * `matplotlib`
 * `xlwings`
 
-### Installation ###
+#### Installation ####
 By default the Python files are in the `python_src` directory.
 Open `Dimension.xlsm` to begin using the tool.
-If you are moving the tool, please ensure `Dimension.xlsm` is in the same folder as the other Python files such as `main.py` and `plot.py`. 
+If you are moving the tool, please ensure `Dimension.xlsm` is in the same folder as the other Python files such as `main.py`. 
 
 ### Resources ###
 Below are references for various packages used in the code.
