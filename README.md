@@ -1,7 +1,7 @@
 
 ## Stand-alone Version ##
 ### Installation ###
-Check inside the `stand-alone` folder. If there is a `build` folder, then the stand-alone executables were included with this distribution.
+Check inside the `standalone` folder. If there is a `build` folder, then the stand-alone executables were included with this distribution.
 If not, the stand-alone executables need to be built according to the instructions in the next section.
 
 Open `Dimension_standalone.xlsm` to use the tool.
@@ -35,7 +35,7 @@ After these modifications make sure to call `pyinstaller main.spec` instead of `
 
 ## Python Version ##
 ### Dependencies ###
-Before using the Python version, ensure the following packages are installed and visible to your Python distribution.
+Before using the Python version, ensure the following packages are installed and visible to your Python distribution. The Anaconda distribution is an easy way to set this up.
 * `numpy`
 * `scipy`
 * `matplotlib`
@@ -48,7 +48,9 @@ If you are moving the tool, please ensure `Dimension.xlsm` is in the same folder
 
 ### Resources ###
 Below are references for various packages used in the code.
-https://matplotlib.org/users/index.html
-https://docs.scipy.org/doc/numpy/reference/
-http://docs.xlwings.org/en/stable/quickstart.html
-https://pyinstaller.readthedocs.io/en/v3.3.1/
+
+*[matplotlib](https://matplotlib.org/users/index.html)
+*[numpy](https://docs.scipy.org/doc/numpy/reference/)
+*[xlwings](http://docs.xlwings.org/en/stable/quickstart.html)
+*[pyinstaller](https://pyinstaller.readthedocs.io/en/v3.3.1/)
+*[scipy.stats](https://docs.scipy.org/doc/scipy/reference/stats.html)
