@@ -32,11 +32,13 @@ class Plot:
         self.dim_indexes = str(self.plot_dims.value).split(',')
         self.dim_plot_names=[]
         self.dim_plot_data = []
+        self.dim_plot_nominal = []
         if len(self.dim_indexes) > 0 and self.dim_indexes[0] != "None":
             for index in self.dim_indexes:
                 i = round(float(index)+1)
                 self.dim_plot_data.append(self.sht2.range((2,i)).expand('down').value)
                 self.dim_plot_names.append(self.sht2.range((1,i)).value)
+                self.dim_plot_nominal.append(self.dim_range.value[i-1][1])
                 if self.dim_plot_names[-1] == None:
                     self.error_rng.value = "Missing sample for dimension %d, check Dimension Samples sheet" % (i-1)
                     sys.exit()
@@ -46,6 +48,7 @@ class Plot:
         self.stack_plot_names=[]
         self.stack_plot_data=[]
         self.stack_plot_mask=[] # Data used to mark undersized and oversized samples
+        self.stack_plot_nominal = []
         if len(self.dim_indexes) > 0 and self.stack_indexes[0] != "None":
             for index in self.stack_indexes:
                 i = round(float(index))
@@ -57,6 +60,7 @@ class Plot:
                     self.error_rng.value = "Stack %d has no references to dimensions in cell %s%d" % (i,'K',i+3)
                 lower = self.stack_range.value[i][2]
                 upper = self.stack_range.value[i][3]
+                self.stack_plot_nominal.append(self.stack_range.value[i][4])
                 dim_samples = []
                 for ind in dim_inds:
                     j = round(float(ind) + 1) # Add one since Excel columns start at 1
@@ -78,6 +82,7 @@ class Plot:
             if self.sht.api.Shapes("buttond0").OLEFormat.Object.Value > 0:
                 f = plt.figure(0)
                 for i in range(0, len(self.dim_plot_data)):
+                    plt.axvline(x=self.dim_plot_nominal[i],linewidth=.2, color='k')
                     plt.gca().hist(self.dim_plot_data[i], alpha=0.5, bins=self.bin_size,
                                    label=self.dim_plot_names[i])
                 plt.legend()
@@ -86,6 +91,7 @@ class Plot:
             elif self.sht.api.Shapes("buttond1").OLEFormat.Object.Value > 0:
                 f, axs = plt.subplots(len(self.dim_plot_data), 1, sharex=True)
                 for i in range(0, len(self.dim_plot_data), 1):
+                    plt.axvline(x=self.dim_plot_nominal[i],linewidth=.2, color='k')
                     axs[i].hist(self.dim_plot_data[i], alpha=0.5, bins=self.bin_size,
                                 label=self.dim_plot_names[i], facecolor='b')
                     axs[i].legend()
@@ -95,6 +101,7 @@ class Plot:
                 for i in range(0, len(self.dim_plot_data)):
                     f = plt.figure(i)
                     plt.title(self.dim_plot_names[i])
+                    plt.axvline(x=self.dim_plot_nominal[i],linewidth=.2, color='k')
                     plt.gca().hist(self.dim_plot_data[i], alpha=0.5, bins=self.bin_size, facecolor='b', density=True)
                     plt.tight_layout()
         if len(self.stack_indexes) > 0 and self.stack_indexes[0] != 'None':
@@ -103,6 +110,7 @@ class Plot:
             if self.sht.api.Shapes("buttons0").OLEFormat.Object.Value > 0:
                 f = plt.figure(len(self.stack_plot_data))
                 for i in range(0, len(self.stack_plot_data)):
+                    plt.axvline(x=self.stack_plot_nominal[i],linewidth=.2, color='k')
                     plt.gca().hist(self.stack_plot_data[i], alpha=0.5, bins=self.bin_size,
                                    label=self.stack_plot_names[i])
                     plt.gca().hist(self.stack_plot_mask[i], alpha=1, bins=self.bin_size, facecolor='r')
@@ -112,6 +120,7 @@ class Plot:
             elif self.sht.api.Shapes("buttons1").OLEFormat.Object.Value > 0:
                 f, axs = plt.subplots(len(self.stack_plot_data), 1, sharex=True)
                 for i in range(0, len(self.stack_plot_data), 1):
+                    plt.axvline(x=self.stack_plot_nominal[i],linewidth=.2, color='k')
                     axs[i].hist(self.stack_plot_data[i], alpha=0.5, bins=self.bin_size,
                                 label=self.stack_plot_names[i], facecolor='g')
                     axs[i].hist(self.stack_plot_mask[i], alpha=1, bins=self.bin_size, facecolor='r')
@@ -122,6 +131,7 @@ class Plot:
                 for i in range(0, len(self.stack_plot_data)):
                     plt.figure(i+len(self.dim_plot_data))
                     plt.title(self.stack_plot_names[i])
+                    plt.axvline(x=self.stack_plot_nominal[i],linewidth=.2, color='k')
                     plt.gca().hist(self.stack_plot_data[i], alpha=0.5, bins=self.bin_size, facecolor='g')
                     plt.gca().hist(self.stack_plot_mask[i], alpha=1, bins=self.bin_size, facecolor='r')
                     plt.tight_layout()

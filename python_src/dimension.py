@@ -18,7 +18,7 @@ class Dimension:
         self.shift = shift
     def __str__(self):
         return str("Dimension Object Named: " + self.name)
-    def set_dist(self, dist_func, params):
+    def set_dist_func(self, dist_func, params):
         self.dist_func = dist_func
         self.params = params
     def set_sample(self,samples):

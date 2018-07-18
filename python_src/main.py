@@ -10,20 +10,8 @@ from stackup import Stackup
 from product import Product
 import sys
 
-import scipy.stats as st
-
-DISTRIBUTIONS = [        
-    st.alpha,st.anglit,st.arcsine,st.beta,st.betaprime,st.bradford,st.burr,st.cauchy,st.chi,st.chi2,st.cosine,
-    st.dgamma,st.dweibull,st.erlang,st.expon,st.exponnorm,st.exponweib,st.exponpow,st.f,st.fatiguelife,st.fisk,
-    st.foldcauchy,st.foldnorm,st.frechet_r,st.frechet_l,st.genlogistic,st.genpareto,st.gennorm,st.genexpon,
-    st.genextreme,st.gausshyper,st.gamma,st.gengamma,st.genhalflogistic,st.gilbrat,st.gompertz,st.gumbel_r,
-    st.gumbel_l,st.halfcauchy,st.halflogistic,st.halfnorm,st.halfgennorm,st.hypsecant,st.invgamma,st.invgauss,
-    st.invweibull,st.johnsonsb,st.johnsonsu,st.ksone,st.kstwobign,st.laplace,st.levy,st.levy_l,st.levy_stable,
-    st.logistic,st.loggamma,st.loglaplace,st.lognorm,st.lomax,st.maxwell,st.mielke,st.nakagami,st.ncx2,st.ncf,
-    st.nct,st.norm,st.pareto,st.pearson3,st.powerlaw,st.powerlognorm,st.powernorm,st.rdist,st.reciprocal,
-    st.rayleigh,st.rice,st.recipinvgauss,st.semicircular,st.t,st.triang,st.truncexpon,st.truncnorm,st.tukeylambda,
-    st.uniform,st.vonmises,st.vonmises_line,st.wald,st.weibull_min,st.weibull_max,st.wrapcauchy
-    ]
+from distributions import DISTRIBUTIONS
+from distributions import DIST_DICT
 
 class Main:
     sample_count = 100000 #dynamically modified by reading cell B5
@@ -76,19 +64,40 @@ class Main:
             row = self.dim_range.value[i]
             self.dimensions.append(Dimension(row[0], row[1], row[2], row[3], row[4], row[5]))
             dim = self.dimensions[-1]
-            if dim.dist == "normal":
-                best_dist = st.norm
-                best_params = (dim.dim, dim.stddev)
-            else:
+            name = dim.dist.split(',')[0]
+            if dim.dist == 'fit':
                 params = self.sht3.range((2,i+2)).value
                 if params == None:
                     self.error_rng.value = "Missing parameters for dimension %d, fit data first" % (i)
                     sys.exit()
                 else:
                     params = params.split(',')
-                best_params = [float(i) for i in params[1:]]
-                best_dist = DISTRIBUTIONS[int(round(float(params[0])))]
-            self.dimensions[-1].set_dist(best_dist, best_params)
+                final_params = [float(i) for i in params[1:]]
+                final_params[-2] += dim.shift
+                final_params = tuple(final_params)
+                dist_func = DISTRIBUTIONS[int(round(float(params[0])))]
+            elif name == 'triang':
+                params = dim.dist.split(',') 
+                dist_func = DIST_DICT[params[0]]
+                c = (float(params[1]) - (dim.dim - dim.tol))/(2*dim.tol)
+                final_params = (c, dim.dim+dim.shift-dim.tol, dim.tol * 2)
+                print(final_params)
+            elif name == 'beta':
+                params = dim.dist.split(',') 
+                dist_func = DIST_DICT[params[0]]
+                a = float(params[1])
+                b = float(params[2])
+                shift = -1/(1+b/a)
+                final_params = (a,b,dim.dim+dim.shift+shift * dim.stddev, dim.stddev)
+            elif name == 'uniform':
+                dist_func = DIST_DICT[name]
+                final_params = (dim.dim+dim.shift-dim.tol, dim.tol * 2)
+            else:
+                params = dim.dist.split(',') 
+                dist_func = DIST_DICT[params[0]]
+                inputs = [float(i) for i in params[1:]]
+                final_params = (*inputs, dim.dim+dim.shift, dim.stddev)
+            self.dimensions[-1].set_dist_func(dist_func, final_params)
         self.stackups = []
         for i in range(0, len(self.stack_range.value)):
             self.check_stack(i)
@@ -106,9 +115,6 @@ class Main:
             for index in str(row[1]).split(','): # parse stackup references in column S
                 stacks.append(self.stackups[round(float(index))])
             self.products.append(Product(row[0], stacks))
-
-    def get_distribution():
-        pass
             
     def update(self):
         # Fill output cells
