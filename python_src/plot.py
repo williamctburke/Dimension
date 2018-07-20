@@ -91,7 +91,7 @@ class Plot:
             elif self.sht.api.Shapes("buttond1").OLEFormat.Object.Value > 0:
                 f, axs = plt.subplots(len(self.dim_plot_data), 1, sharex=True)
                 for i in range(0, len(self.dim_plot_data), 1):
-                    plt.axvline(x=self.dim_plot_nominal[i],linewidth=.2, color='k')
+                    axs[i].axvline(x=self.dim_plot_nominal[i],linewidth=.2, color='k')
                     axs[i].hist(self.dim_plot_data[i], alpha=0.5, bins=self.bin_size,
                                 label=self.dim_plot_names[i], facecolor='b')
                     axs[i].legend()
@@ -120,7 +120,7 @@ class Plot:
             elif self.sht.api.Shapes("buttons1").OLEFormat.Object.Value > 0:
                 f, axs = plt.subplots(len(self.stack_plot_data), 1, sharex=True)
                 for i in range(0, len(self.stack_plot_data), 1):
-                    plt.axvline(x=self.stack_plot_nominal[i],linewidth=.2, color='k')
+                    axs[i].axvline(x=self.stack_plot_nominal[i],linewidth=.2, color='k')
                     axs[i].hist(self.stack_plot_data[i], alpha=0.5, bins=self.bin_size,
                                 label=self.stack_plot_names[i], facecolor='g')
                     axs[i].hist(self.stack_plot_mask[i], alpha=1, bins=self.bin_size, facecolor='r')
